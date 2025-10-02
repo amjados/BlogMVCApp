@@ -1,0 +1,254 @@
+@{
+    ViewData["Title"] = "Write New Post";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-pen"></i> Write New Post</h2>
+                <a href="@Url.Action("LandPage", "Home")" class="btn btn-outline-secondary">
+                    <i class="fas fa-arrow-left"></i> Back to Dashboard
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-header">
+                    <h5>Post Details</h5>
+                </div>
+                <div class="card-body">
+                    @if (TempData["Success"] != null)
+                {
+                    <div class="alert alert-success alert-dismissible fade show" role="alert">
+                        @TempData["Success"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                @if (TempData["Error"] != null)
+                {
+                    <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                        @TempData["Error"]
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                }
+                <form id="postForm" method="post" action="@Url.Action("SavePost", "Home")">
+                        <div class="mb-3">
+                            <label for="title" class="form-label">Post Title</label>
+                            <input type="text" class="form-control" id="title" name="title" placeholder="Enter your post title..." required>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="excerpt" class="form-label">Excerpt</label>
+                            <textarea class="form-control" id="excerpt" name="excerpt" rows="2" placeholder="Brief description of your post..."></textarea>
+                            <div class="form-text">This will appear as a preview of your post.</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="category" class="form-label">Category</label>
+                            <select class="form-control" id="category" name="category">
+                                <option value="">Select a category...</option>
+                                <option value="programming">Programming</option>
+                                <option value="web-development">Web Development</option>
+                                <option value="database">Database</option>
+                                <option value="devops">DevOps</option>
+                            </select>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="tags" class="form-label">Tags</label>
+                            <input type="text" class="form-control" id="tags" name="tags" placeholder="Enter tags separated by commas...">
+                            <div class="form-text">Example: ASP.NET Core, C#, Tutorial</div>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="content" class="form-label">Content</label>
+                            <textarea class="form-control" id="content" name="content" rows="15" placeholder="Write your post content here...
+
+You can use Markdown formatting:
+
+# Heading 1
+## Heading 2
+### Heading 3
+
+**Bold text**
+*Italic text*
+
+- Bullet point
+- Another point
+
+```code
+// Code block example
+public void Example() {
+    Console.WriteLine(""Hello World!"");
+}
+```
+
+[Link text](https://example.com)"></textarea>
+                        </div>
+
+                        <div class="mb-3">
+                            <label for="featuredImage" class="form-label">Featured Image URL (Optional)</label>
+                            <input type="url" class="form-control" id="featuredImage" name="featuredImage" placeholder="https://example.com/image.jpg">
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card mb-4">
+                <div class="card-header">
+                    <h5>Publish Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="status" class="form-label">Status</label>
+                        <select class="form-control" id="status" name="status">
+                            <option value="draft">Draft</option>
+                            <option value="published">Published</option>
+                        </select>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="publishDate" class="form-label">Publish Date</label>
+                        <input type="datetime-local" class="form-control" id="publishDate" name="publishDate" value="@DateTime.Now.ToString("yyyy-MM-ddTHH:mm")">
+                    </div>
+
+                    <div class="d-grid gap-2">
+                        <button type="button" class="btn btn-primary" onclick="savePost('published')">
+                            <i class="fas fa-paper-plane"></i> Publish Post
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary" onclick="savePost('draft')">
+                            <i class="fas fa-save"></i> Save as Draft
+                        </button>
+                        <button type="button" class="btn btn-outline-info" onclick="previewPost()">
+                            <i class="fas fa-eye"></i> Preview
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <div class="card-header">
+                    <h5>SEO Settings</h5>
+                </div>
+                <div class="card-body">
+                    <div class="mb-3">
+                        <label for="metaTitle" class="form-label">Meta Title</label>
+                        <input type="text" class="form-control" id="metaTitle" name="metaTitle" maxlength="60">
+                        <div class="form-text">Max 60 characters</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="metaDescription" class="form-label">Meta Description</label>
+                        <textarea class="form-control" id="metaDescription" name="metaDescription" rows="3" maxlength="160"></textarea>
+                        <div class="form-text">Max 160 characters</div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="slug" class="form-label">URL Slug</label>
+                        <input type="text" class="form-control" id="slug" name="slug" placeholder="auto-generated-from-title">
+                        <div class="form-text">Leave empty to auto-generate</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function savePost(status) {
+        const form = document.getElementById('postForm');
+        const statusInput = document.createElement('input');
+        statusInput.type = 'hidden';
+        statusInput.name = 'status';
+        statusInput.value = status;
+        form.appendChild(statusInput);
+
+        // Validate required fields
+        const title = document.getElementById('title').value.trim();
+        const content = document.getElementById('content').value.trim();
+
+        if (!title || !content) {
+            alert('Please fill in both title and content fields.');
+            return;
+        }
+
+        // Submit the form
+        form.submit();
+    }
+
+    function previewPost() {
+        const title = document.getElementById('title').value || 'Untitled Post';
+        const content = document.getElementById('content').value || 'No content yet...';
+        const excerpt = document.getElementById('excerpt').value || '';
+        const category = document.getElementById('category').value || '';
+
+        // Open preview in new window
+        const previewUrl = '@Url.Action("PreviewPost", "Home")' +
+            `?title=${encodeURIComponent(title)}` +
+            `&content=${encodeURIComponent(content)}` +
+            `&excerpt=${encodeURIComponent(excerpt)}` +
+            `&category=${encodeURIComponent(category)}`;
+
+        window.open(previewUrl, 'preview', 'width=800,height=600,scrollbars=yes,resizable=yes');
+    }
+
+    // Auto-generate slug from title
+    document.getElementById('title').addEventListener('input', function() {
+        const title = this.value;
+        const slug = title.toLowerCase()
+            .replace(/[^a-z0-9 -]/g, '')
+            .replace(/\s+/g, '-')
+            .replace(/-+/g, '-')
+            .trim('-');
+        document.getElementById('slug').value = slug;
+
+        // Auto-fill meta title if empty
+        if (!document.getElementById('metaTitle').value) {
+            document.getElementById('metaTitle').value = title.substring(0, 60);
+        }
+    });
+
+    // Auto-generate meta description from excerpt
+    document.getElementById('excerpt').addEventListener('input', function() {
+        const excerpt = this.value;
+        if (!document.getElementById('metaDescription').value && excerpt) {
+            document.getElementById('metaDescription').value = excerpt.substring(0, 160);
+        }
+    });
+</script>
+
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .form-control:focus {
+        border-color: #80bdff;
+        box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+    }
+
+    .btn {
+        border-radius: 0.375rem;
+    }
+
+    .card-header {
+        background-color: #f8f9fa;
+        border-bottom: 1px solid #dee2e6;
+    }
+
+    .form-text {
+        color: #6c757d;
+        font-size: 0.875em;
+    }
+
+    textarea {
+        resize: vertical;
+    }
+</style>

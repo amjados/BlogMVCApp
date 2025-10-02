@@ -1,0 +1,57 @@
+@{
+    ViewData["Title"] = "Access Denied";
+    var message = ViewData["Message"] as string ?? "You do not have permission to access this resource.";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h4 class="mb-0">
+                        <i class="fas fa-ban"></i>
+                        Access Denied
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-danger" role="alert">
+                        <h5 class="alert-heading">Insufficient Permissions</h5>
+                        <p>@message</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6>Why am I seeing this?</h6>
+                        <ul>
+                            <li>You may not have the required role or permissions</li>
+                            <li>Your session may have expired</li>
+                            <li>The resource may require special authorization</li>
+                        </ul>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6>What can you do?</h6>
+                        <ul>
+                            <li>Log in with an account that has the required permissions</li>
+                            <li>Contact your administrator to request access</li>
+                            <li>Go back to the previous page</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i> Go Back
+                        </button>
+                        <div>
+                            <a href="/Home/Login" class="btn btn-primary">
+                                <i class="fas fa-sign-in-alt"></i> Login
+                            </a>
+                            <a href="/" class="btn btn-outline-primary">
+                                <i class="fas fa-home"></i> Home
+                            </a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

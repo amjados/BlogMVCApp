@@ -1,0 +1,47 @@
+﻿@{
+    ViewData["Title"] = "Home Page";
+}
+
+<div class="text-center">
+    <h1 class="display-4">Welcome</h1>
+    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <p><a href="@Url.Action("Login", "Home")" class="btn btn-primary">Login</a></p>
+
+    <h3>Environment Information</h3>
+    <div class="table-responsive">
+        <table class="table table-striped">
+            <thead>
+                <tr>
+                    <th>Variable Name</th>
+                    <th>Value</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr>
+                    <td>Environment</td>
+                    <td>@Environment.GetEnvironmentVariable("ASPNETCORE_ENVIRONMENT")</td>
+                </tr>
+                <tr>
+                    <td>Machine Name</td>
+                    <td>@Environment.MachineName</td>
+                </tr>
+                <tr>
+                    <td>User Name</td>
+                    <td>@Environment.UserName</td>
+                </tr>
+                <tr>
+                    <td>OS Version</td>
+                    <td>@Environment.OSVersion</td>
+                </tr>
+                <tr>
+                    <td>Process ID</td>
+                    <td>@Environment.ProcessId</td>
+                </tr>
+                <tr>
+                    <td>Working Directory</td>
+                    <td>@Environment.CurrentDirectory</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</div>

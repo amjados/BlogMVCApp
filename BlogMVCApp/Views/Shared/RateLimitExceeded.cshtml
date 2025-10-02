@@ -1,0 +1,79 @@
+@{
+    ViewData["Title"] = "Rate Limit Exceeded";
+    var retryAfter = ViewData["RetryAfter"] as int? ?? 60;
+    var maxRequests = ViewData["MaxRequests"] as int? ?? 10;
+    var timeWindow = ViewData["TimeWindow"] as string ?? "1 minute";
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-warning">
+                <div class="card-header bg-warning text-dark">
+                    <h4 class="mb-0">
+                        <i class="fas fa-exclamation-triangle"></i>
+                        Rate Limit Exceeded
+                    </h4>
+                </div>
+                <div class="card-body">
+                    <div class="alert alert-warning" role="alert">
+                        <h5 class="alert-heading">Too Many Requests!</h5>
+                        <p>You have exceeded the rate limit for this action.</p>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6">
+                                <strong>Limit:</strong> @maxRequests requests per @timeWindow
+                            </div>
+                            <div class="col-md-6">
+                                <strong>Retry After:</strong> @retryAfter seconds
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6>What happened?</h6>
+                        <p class="mb-2">To protect our service and ensure fair usage for all users, we limit the number of requests you can make within a specific time period.</p>
+                    </div>
+
+                    <div class="mb-3">
+                        <h6>What can you do?</h6>
+                        <ul>
+                            <li>Wait for <strong id="countdown">@retryAfter</strong> seconds before making another request</li>
+                            <li>Reduce the frequency of your requests</li>
+                            <li>Contact support if you believe this is an error</li>
+                        </ul>
+                    </div>
+
+                    <div class="d-flex justify-content-between">
+                        <button type="button" class="btn btn-secondary" onclick="history.back()">
+                            <i class="fas fa-arrow-left"></i> Go Back
+                        </button>
+                        <button type="button" class="btn btn-primary" id="retryBtn" disabled>
+                            <i class="fas fa-redo"></i> Retry (<span id="countdown2">@retryAfter</span>s)
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let timeLeft = @retryAfter;
+    const countdownElements = document.querySelectorAll('#countdown, #countdown2');
+    const retryBtn = document.getElementById('retryBtn');
+    
+    const timer = setInterval(() => {
+        timeLeft--;
+        countdownElements.forEach(el => {
+            el.textContent = timeLeft;
+        });
+        
+        if (timeLeft <= 0) {
+            clearInterval(timer);
+            retryBtn.disabled = false;
+            retryBtn.innerHTML = '<i class="fas fa-redo"></i> Retry Now';
+            retryBtn.onclick = () => location.reload();
+        }
+    }, 1000);
+</script>

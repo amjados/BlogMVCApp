@@ -1,0 +1,15 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet build)",
+      "Bash(dotnet build:*)",
+      "Bash(dotnet clean:*)",
+      "Bash(dotnet restore:*)",
+      "Read(//c/vscodeProjects/NetCoreProj1/**)",
+      "Bash(dotnet remove:*)",
+      "Bash(dotnet add reference:*)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}

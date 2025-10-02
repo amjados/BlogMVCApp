@@ -1,0 +1,318 @@
+<Project>
+
+  <!-- Docker Deployment Properties -->
+  <PropertyGroup>
+    <DockerImageName>blogmvc-app</DockerImageName>
+    <DockerImageTag>latest</DockerImageTag>
+    <DockerContainerName>blogmvc-app-container</DockerContainerName>
+    <DockerPort>8080</DockerPort>
+    
+    <!-- Existing Database Configuration -->
+    <UseExistingDatabase>true</UseExistingDatabase>
+    <ExistingDatabaseContainer>distracted_franklin</ExistingDatabaseContainer>
+    <ExistingSqlServerHost>host.docker.internal</ExistingSqlServerHost>
+    <ExistingSqlServerPort>54426</ExistingSqlServerPort>
+    <DatabaseName>test1</DatabaseName>
+    <SqlServerPassword>amjadOmar1!A</SqlServerPassword>
+    
+    <!-- Generated Connection String -->
+    <DockerConnectionString>Server=$(ExistingSqlServerHost),$(ExistingSqlServerPort);Database=$(DatabaseName);User Id=sa;Password=$(SqlServerPassword);TrustServerCertificate=true;Encrypt=false;</DockerConnectionString>
+  </PropertyGroup>
+
+  <!-- Custom Task: Generate Dockerfile -->
+  <UsingTask TaskName="GenerateDockerfile" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <OutputPath Required="true" />
+      <Port Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System"/>
+      <Using Namespace="System.IO"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            var dockerfile = $@"# Auto-generated Dockerfile by MSBuild
+FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
+WORKDIR /app
+EXPOSE {Port}
+
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY [""BlogMVCApp.csproj"", "".""]
+RUN dotnet restore ""./BlogMVCApp.csproj""
+COPY . .
+WORKDIR ""/src/.""
+RUN dotnet build ""BlogMVCApp.csproj"" -c Release -o /app/build
+
+FROM build AS publish
+RUN dotnet publish ""BlogMVCApp.csproj"" -c Release -o /app/publish /p:UseAppHost=false
+
+FROM base AS final
+WORKDIR /app
+
+# Install curl for health checks
+RUN apt-get update && apt-get install -y curl && rm -rf /var/lib/apt/lists/*
+
+# Copy the published application
+COPY --from=publish /app/publish .
+
+# Create a non-root user for security
+RUN groupadd -r appuser && useradd --no-log-init -r -g appuser appuser
+RUN chown -R appuser:appuser /app
+USER appuser
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
+    CMD curl -f http://localhost:{Port}/Home/Index || exit 1
+
+ENTRYPOINT [""dotnet"", ""BlogMVCApp.dll""]
+";
+            
+            File.WriteAllText(OutputPath, dockerfile);
+            Log.LogMessage(MessageImportance.High, $"🐳 Generated Dockerfile: {OutputPath}");
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <!-- Custom Task: Generate Docker Compose for Existing Database -->
+  <UsingTask TaskName="GenerateDockerComposeExternal" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <OutputPath Required="true" />
+      <AppContainer Required="true" />
+      <AppPort Required="true" />
+      <ConnectionString Required="true" />
+      <ExistingDbContainer Required="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System"/>
+      <Using Namespace="System.IO"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            var dockerCompose = $@"# Auto-generated docker-compose.yml by MSBuild
+# Generated on: {DateTime.Now:yyyy-MM-dd HH:mm:ss}
+# Configured to use existing SQL Server: {ExistingDbContainer}
+
+services:
+  # Blog MVC Application (connects to existing SQL Server)
+  {AppContainer}:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: {AppContainer}
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ""ConnectionStrings__DefaultConnection={ConnectionString}""
+      - ASPNETCORE_URLS=http://+:{AppPort}
+    ports:
+      - ""{AppPort}:{AppPort}""
+    extra_hosts:
+      - ""host.docker.internal:host-gateway""
+    restart: unless-stopped
+    volumes:
+      - app_logs:/app/logs
+    healthcheck:
+      test: [""CMD-SHELL"", ""curl -f http://localhost:{AppPort}/Home/Index || exit 1""]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  app_logs:
+    driver: local
+
+# Note: Using existing SQL Server container '{ExistingDbContainer}'
+# Connection: {ConnectionString.Replace("\"", "'")}
+";
+
+            File.WriteAllText(OutputPath, dockerCompose);
+            Log.LogMessage(MessageImportance.High, $"📋 Generated docker-compose.yml: {OutputPath}");
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <!-- Custom Task: Simple Health Check -->
+  <UsingTask TaskName="HealthCheck" TaskFactory="RoslynCodeTaskFactory" AssemblyFile="$(MSBuildToolsPath)\Microsoft.Build.Tasks.Core.dll">
+    <ParameterGroup>
+      <Url Required="true" />
+      <MaxRetries ParameterType="System.Int32" Required="false" />
+      <IsHealthy ParameterType="System.Boolean" Output="true" />
+    </ParameterGroup>
+    <Task>
+      <Using Namespace="System"/>
+      <Using Namespace="System.Net.Http"/>
+      <Using Namespace="System.Threading.Tasks"/>
+      <Code Type="Fragment" Language="cs">
+        <![CDATA[
+            MaxRetries = MaxRetries == 0 ? 3 : MaxRetries;
+            IsHealthy = false;
+            
+            using (var client = new HttpClient())
+            {
+                client.Timeout = TimeSpan.FromSeconds(5);
+                
+                for (int i = 0; i < MaxRetries; i++)
+                {
+                    try
+                    {
+                        Log.LogMessage(MessageImportance.High, $"🔍 Health check attempt {i + 1}/{MaxRetries} for {Url}");
+                        var response = await client.GetAsync(Url);
+                        
+                        if (response.IsSuccessStatusCode)
+                        {
+                            Log.LogMessage(MessageImportance.High, "✅ Application is healthy!");
+                            IsHealthy = true;
+                            return IsHealthy;
+                        }
+                        
+                        Log.LogMessage(MessageImportance.High, $"⚠️ Status: {response.StatusCode}");
+                    }
+                    catch (Exception ex)
+                    {
+                        Log.LogMessage(MessageImportance.High, $"⚠️ Attempt {i + 1} failed: {ex.Message}");
+                    }
+                    
+                    if (i < MaxRetries - 1)
+                    {
+                        Log.LogMessage(MessageImportance.High, "⏳ Waiting 5 seconds before retry...");
+                        await Task.Delay(3000);
+                    }
+                }
+                
+                Log.LogMessage(MessageImportance.High, "❌ Health check failed after all attempts");
+                return IsHealthy;
+        ]]>
+      </Code>
+    </Task>
+  </UsingTask>
+
+  <!-- Target: Generate Docker Files -->
+  <Target Name="GenerateDockerFiles">
+    <Message Text="📝 Generating Docker configuration files..." Importance="high" />
+    
+    <!-- Generate Dockerfile -->
+    <GenerateDockerfile 
+      OutputPath="Dockerfile" 
+      Port="$(DockerPort)" />
+    
+    <!-- Generate docker-compose.yml -->
+    <GenerateDockerComposeExternal 
+      OutputPath="docker-compose.yml"
+      AppContainer="$(DockerContainerName)"
+      AppPort="$(DockerPort)"
+      ConnectionString="$(DockerConnectionString)"
+      ExistingDbContainer="$(ExistingDatabaseContainer)" />
+    
+    <Message Text="✅ Docker files generated successfully!" Importance="high" />
+  </Target>
+
+  <!-- Target: Clean Docker Resources -->
+  <Target Name="DockerClean">
+    <Message Text="🧹 Cleaning Docker resources..." Importance="high" />
+    <Exec Command="docker compose down --remove-orphans" IgnoreExitCode="true" />
+    <Exec Command="docker container prune -f" IgnoreExitCode="true" />
+    <Exec Command="docker image prune -f" IgnoreExitCode="true" />
+    <Message Text="✅ Docker cleanup completed!" Importance="high" />
+  </Target>
+
+  <!-- Target: Build Docker Image -->
+  <Target Name="DockerBuild" DependsOnTargets="GenerateDockerFiles">
+    <Message Text="🐳 Building Docker image..." Importance="high" />
+    <Exec Command="docker compose build --no-cache" />
+    <Message Text="✅ Docker image built successfully!" Importance="high" />
+  </Target>
+
+  <!-- Target: Database Migration -->
+  <Target Name="DatabaseMigrate">
+    <Message Text="🗄️ Running database migrations..." Importance="high" />
+    <Exec Command="dotnet ef database update" IgnoreExitCode="true" />
+    <Message Text="✅ Database migrations completed!" Importance="high" />
+  </Target>
+
+  <!-- Target: Full Deployment Pipeline -->
+  <Target Name="Deploy" DependsOnTargets="Build;DatabaseMigrate;DockerClean;DockerBuild">
+    <Message Text="🚀 Starting full deployment..." Importance="high" />
+    
+    <!-- Start services -->
+    <Message Text="🐳 Starting containers..." Importance="high" />
+    <Exec Command="docker compose up -d" />
+    
+    <!-- Wait for application to start -->
+    <Message Text="⏳ Waiting for application to start..." Importance="high" />
+    <Exec Command="timeout /t 15 /nobreak" Condition="$([MSBuild]::IsOSPlatform('Windows'))" />
+    <Exec Command="sleep 15" Condition="!$([MSBuild]::IsOSPlatform('Windows'))" />
+    
+    <!-- Health check -->
+    <Message Text="🏥 Performing health check..." Importance="high" />
+    <HealthCheck Url="http://localhost:$(DockerPort)" MaxRetries="5">
+      <Output TaskParameter="IsHealthy" PropertyName="AppIsHealthy" />
+    </HealthCheck>
+    
+    <!-- Deployment results -->
+    <Message Text="🎉 Deployment completed successfully!" Importance="high" Condition="'$(AppIsHealthy)' == 'true'" />
+    <Message Text="⚠️ Deployment completed but health check failed" Importance="high" Condition="'$(AppIsHealthy)' != 'true'" />
+    <Message Text="🌐 Application URL: http://localhost:$(DockerPort)" Importance="high" />
+    <Message Text="🗄️ Database: Using existing container '$(ExistingDatabaseContainer)'" Importance="high" />
+    <Message Text="🔍 Check status: dotnet msbuild -t:DockerStatus" Importance="high" />
+  </Target>
+
+  <!-- Target: Quick Deploy (without cleanup) -->
+  <Target Name="QuickDeploy" DependsOnTargets="GenerateDockerFiles">
+    <Message Text="⚡ Quick deployment..." Importance="high" />
+    <Exec Command="docker compose up --build -d" />
+    <Message Text="✅ Quick deployment completed!" Importance="high" />
+    <Message Text="🌐 Application: http://localhost:$(DockerPort)" Importance="high" />
+  </Target>
+
+  <!-- Target: Check Container Status -->
+  <Target Name="DockerStatus">
+    <Message Text="📊 Container Status:" Importance="high" />
+    <Exec Command="docker compose ps" />
+    <Message Text="📈 Resource Usage:" Importance="high" />
+    <Exec Command="docker stats --no-stream --format &quot;table {{.Container}}\t{{.CPUPerc}}\t{{.MemUsage}}&quot;" />
+  </Target>
+
+  <!-- Target: Stop Docker Services -->
+  <Target Name="DockerStop">
+    <Message Text="🛑 Stopping Docker services..." Importance="high" />
+    <Exec Command="docker compose down" />
+    <Message Text="✅ Services stopped!" Importance="high" />
+  </Target>
+
+  <!-- Target: View Container Logs -->
+  <Target Name="DockerLogs">
+    <Message Text="📋 Container Logs (last 50 lines):" Importance="high" />
+    <Exec Command="docker compose logs --tail=50" />
+  </Target>
+
+  <!-- Target: Follow Container Logs -->
+  <Target Name="DockerLogsTail">
+    <Message Text="📋 Following container logs (Ctrl+C to exit):" Importance="high" />
+    <Exec Command="docker compose logs -f" />
+  </Target>
+
+  <!-- Target: Development Setup -->
+  <Target Name="DevSetup">
+    <Message Text="🛠️ Setting up development environment..." Importance="high" />
+    <Exec Command="dotnet restore" />
+    <Exec Command="dotnet build" />
+    <Exec Command="dotnet ef database update" IgnoreExitCode="true" />
+    <Message Text="✅ Development setup completed!" Importance="high" />
+  </Target>
+
+  <!-- Target: Production Deployment -->
+  <Target Name="DeployProd" DependsOnTargets="Deploy">
+    <Message Text="🚀 Production deployment validation..." Importance="high" />
+    
+    <!-- Additional production validations -->
+    <Message Text="🔍 Running production health checks..." Importance="high" />
+    <HealthCheck Url="http://localhost:$(DockerPort)" MaxRetries="10">
+      <Output TaskParameter="IsHealthy" PropertyName="ProdHealthy" />
+    </HealthCheck>
+    
+    <Message Text="✅ Production deployment successful!" Importance="high" Condition="'$(ProdHealthy)' == 'true'" />
+    <Error Text="❌ Production deployment failed health checks!" Condition="'$(ProdHealthy)' != 'true'" />
+  </Target>
+
+</Project>

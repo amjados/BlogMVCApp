@@ -1,0 +1,393 @@
+@{
+    ViewData["Title"] = "All Blog Posts";
+}
+
+<div class="container-fluid">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-newspaper"></i> All Blog Posts</h2>
+                <div>
+                    <a href="@Url.Action("WritePost", "Home")" class="btn btn-primary me-2">
+                        <i class="fas fa-plus"></i> New Post
+                    </a>
+                    <a href="@Url.Action("LandPage", "Home")" class="btn btn-outline-secondary">
+                        <i class="fas fa-arrow-left"></i> Back to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Filter and Search -->
+    <div class="row mb-4">
+        <div class="col-md-12">
+            <div class="card">
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-4">
+                            <label for="searchPosts" class="form-label">Search Posts</label>
+                            <input type="text" class="form-control" id="searchPosts" placeholder="Search by title or content...">
+                        </div>
+                        <div class="col-md-3">
+                            <label for="filterCategory" class="form-label">Category</label>
+                            <select class="form-control" id="filterCategory">
+                                <option value="">All Categories</option>
+                                <option value="programming">Programming</option>
+                                <option value="web-development">Web Development</option>
+                                <option value="database">Database</option>
+                                <option value="devops">DevOps</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label for="filterStatus" class="form-label">Status</label>
+                            <select class="form-control" id="filterStatus">
+                                <option value="">All Posts</option>
+                                <option value="published">Published</option>
+                                <option value="draft">Draft</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <label class="form-label">&nbsp;</label>
+                            <div>
+                                <button type="button" class="btn btn-outline-primary w-100" onclick="filterPosts()">
+                                    <i class="fas fa-search"></i> Filter
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Posts Grid -->
+    <div class="row" id="postsContainer">
+        <!-- Post 1 -->
+        <div class="col-md-6 col-lg-4 mb-4 post-card" data-category="web-development" data-status="published">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-success">Published</span>
+                        <span class="badge bg-info">Web Development</span>
+                    </div>
+                    <h5 class="card-title">Getting Started with ASP.NET Core MVC</h5>
+                    <p class="card-text text-muted">Learn the fundamentals of ASP.NET Core MVC and create your first web application with this comprehensive guide.</p>
+                    <div class="post-meta mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar"></i> 15 days ago
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-eye"></i> 1,247 views
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-comments"></i> 2 comments
+                        </small>
+                    </div>
+                    <div class="post-tags mb-3">
+                        <span class="badge bg-secondary me-1">ASP.NET Core</span>
+                        <span class="badge bg-secondary me-1">C#</span>
+                        <span class="badge bg-secondary me-1">Tutorial</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="alert('View post feature coming soon!')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="alert('Edit post feature coming soon!')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDelete('Getting Started with ASP.NET Core MVC')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post 2 -->
+        <div class="col-md-6 col-lg-4 mb-4 post-card" data-category="database" data-status="published">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-success">Published</span>
+                        <span class="badge bg-warning text-dark">Database</span>
+                    </div>
+                    <h5 class="card-title">Entity Framework Core Best Practices</h5>
+                    <p class="card-text text-muted">Essential best practices for Entity Framework Core to build performant and maintainable .NET applications.</p>
+                    <div class="post-meta mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar"></i> 10 days ago
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-eye"></i> 892 views
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-comments"></i> 2 comments
+                        </small>
+                    </div>
+                    <div class="post-tags mb-3">
+                        <span class="badge bg-secondary me-1">Entity Framework</span>
+                        <span class="badge bg-secondary me-1">C#</span>
+                        <span class="badge bg-secondary me-1">Performance</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="alert('View post feature coming soon!')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="alert('Edit post feature coming soon!')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDelete('Entity Framework Core Best Practices')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post 3 -->
+        <div class="col-md-6 col-lg-4 mb-4 post-card" data-category="web-development" data-status="published">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-success">Published</span>
+                        <span class="badge bg-info">Web Development</span>
+                    </div>
+                    <h5 class="card-title">Modern JavaScript ES2023 Features</h5>
+                    <p class="card-text text-muted">Discover the latest JavaScript ES2023 features including new array methods, hashbang support, and improved WeakMap functionality.</p>
+                    <div class="post-meta mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar"></i> 5 days ago
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-eye"></i> 634 views
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-comments"></i> 1 comment
+                        </small>
+                    </div>
+                    <div class="post-tags mb-3">
+                        <span class="badge bg-secondary me-1">JavaScript</span>
+                        <span class="badge bg-secondary me-1">ES2023</span>
+                        <span class="badge bg-secondary me-1">Tutorial</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="alert('View post feature coming soon!')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="alert('Edit post feature coming soon!')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDelete('Modern JavaScript ES2023 Features')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Post 4 -->
+        <div class="col-md-6 col-lg-4 mb-4 post-card" data-category="devops" data-status="published">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-success">Published</span>
+                        <span class="badge bg-danger">DevOps</span>
+                    </div>
+                    <h5 class="card-title">Docker for .NET Developers: Complete Guide</h5>
+                    <p class="card-text text-muted">Complete guide to Docker containerization for .NET developers, covering Dockerfile creation, multi-stage builds, and production deployment strategies.</p>
+                    <div class="post-meta mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar"></i> 3 days ago
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-eye"></i> 456 views
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-comments"></i> 1 comment
+                        </small>
+                    </div>
+                    <div class="post-tags mb-3">
+                        <span class="badge bg-secondary me-1">Docker</span>
+                        <span class="badge bg-secondary me-1">C#</span>
+                        <span class="badge bg-secondary me-1">DevOps</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-primary btn-sm" onclick="alert('View post feature coming soon!')">
+                            <i class="fas fa-eye"></i> View
+                        </button>
+                        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="alert('Edit post feature coming soon!')">
+                            <i class="fas fa-edit"></i> Edit
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDelete('Docker for .NET Developers: Complete Guide')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Draft Post Example -->
+        <div class="col-md-6 col-lg-4 mb-4 post-card" data-category="programming" data-status="draft">
+            <div class="card h-100">
+                <div class="card-body">
+                    <div class="d-flex justify-content-between align-items-start mb-2">
+                        <span class="badge bg-secondary">Draft</span>
+                        <span class="badge bg-primary">Programming</span>
+                    </div>
+                    <h5 class="card-title">Advanced C# Patterns and Practices</h5>
+                    <p class="card-text text-muted">Work in progress - exploring advanced C# programming patterns, SOLID principles, and clean architecture practices.</p>
+                    <div class="post-meta mb-3">
+                        <small class="text-muted">
+                            <i class="fas fa-calendar"></i> Last edited 1 day ago
+                            <span class="mx-2">•</span>
+                            <i class="fas fa-file-alt"></i> Draft
+                        </small>
+                    </div>
+                    <div class="post-tags mb-3">
+                        <span class="badge bg-secondary me-1">C#</span>
+                        <span class="badge bg-secondary me-1">Architecture</span>
+                        <span class="badge bg-secondary me-1">Patterns</span>
+                    </div>
+                </div>
+                <div class="card-footer bg-transparent">
+                    <div class="btn-group w-100" role="group">
+                        <button type="button" class="btn btn-outline-warning btn-sm" onclick="alert('Continue editing feature coming soon!')">
+                            <i class="fas fa-edit"></i> Continue
+                        </button>
+                        <button type="button" class="btn btn-outline-success btn-sm" onclick="alert('Publish draft feature coming soon!')">
+                            <i class="fas fa-paper-plane"></i> Publish
+                        </button>
+                        <button type="button" class="btn btn-outline-danger btn-sm" onclick="confirmDelete('Advanced C# Patterns and Practices')">
+                            <i class="fas fa-trash"></i> Delete
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- No Posts Message (Hidden by default) -->
+    <div class="row" id="noPostsMessage" style="display: none;">
+        <div class="col-md-12">
+            <div class="text-center p-5">
+                <i class="fas fa-newspaper fa-4x text-muted mb-3"></i>
+                <h4 class="text-muted">No posts found</h4>
+                <p class="text-muted">Try adjusting your search or filter criteria.</p>
+                <a href="@Url.Action("WritePost", "Home")" class="btn btn-primary">
+                    <i class="fas fa-plus"></i> Create Your First Post
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pagination -->
+    <div class="row mt-4">
+        <div class="col-md-12">
+            <nav aria-label="Posts pagination">
+                <ul class="pagination justify-content-center">
+                    <li class="page-item disabled">
+                        <a class="page-link" href="#" tabindex="-1" aria-disabled="true">Previous</a>
+                    </li>
+                    <li class="page-item active"><a class="page-link" href="#">1</a></li>
+                    <li class="page-item"><a class="page-link" href="#">2</a></li>
+                    <li class="page-item"><a class="page-link" href="#">3</a></li>
+                    <li class="page-item">
+                        <a class="page-link" href="#">Next</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+<script>
+    function filterPosts() {
+        const search = document.getElementById('searchPosts').value.toLowerCase();
+        const category = document.getElementById('filterCategory').value;
+        const status = document.getElementById('filterStatus').value;
+        const posts = document.querySelectorAll('.post-card');
+        let visibleCount = 0;
+
+        posts.forEach(post => {
+            const title = post.querySelector('.card-title').textContent.toLowerCase();
+            const content = post.querySelector('.card-text').textContent.toLowerCase();
+            const postCategory = post.dataset.category;
+            const postStatus = post.dataset.status;
+
+            const matchesSearch = !search || title.includes(search) || content.includes(search);
+            const matchesCategory = !category || postCategory === category;
+            const matchesStatus = !status || postStatus === status;
+
+            if (matchesSearch && matchesCategory && matchesStatus) {
+                post.style.display = 'block';
+                visibleCount++;
+            } else {
+                post.style.display = 'none';
+            }
+        });
+
+        // Show/hide no posts message
+        document.getElementById('noPostsMessage').style.display = visibleCount === 0 ? 'block' : 'none';
+    }
+
+    function confirmDelete(postTitle) {
+        if (confirm(`Are you sure you want to delete "${postTitle}"? This action cannot be undone.`)) {
+            alert('This is a demo. In a real app, this would delete the post from the database.');
+        }
+    }
+
+    // Real-time search
+    document.getElementById('searchPosts').addEventListener('input', filterPosts);
+    document.getElementById('filterCategory').addEventListener('change', filterPosts);
+    document.getElementById('filterStatus').addEventListener('change', filterPosts);
+</script>
+
+<style>
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+        transition: all 0.15s ease-in-out;
+    }
+
+    .card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.15);
+    }
+
+    .post-card {
+        transition: all 0.3s ease;
+    }
+
+    .card-title {
+        font-size: 1.1rem;
+        font-weight: 600;
+        line-height: 1.3;
+    }
+
+    .post-meta {
+        font-size: 0.875rem;
+    }
+
+    .post-tags .badge {
+        font-size: 0.7rem;
+    }
+
+    .btn-group .btn {
+        border-radius: 0.375rem;
+    }
+
+    .badge {
+        font-size: 0.75em;
+        padding: 0.375rem 0.5rem;
+    }
+
+    .pagination .page-link {
+        border-radius: 0.375rem;
+        margin: 0 0.125rem;
+    }
+
+    .card-footer {
+        padding: 0.75rem 1.25rem;
+    }
+</style>

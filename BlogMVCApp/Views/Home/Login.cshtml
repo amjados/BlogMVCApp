@@ -1,0 +1,51 @@
+@{
+    ViewData["Title"] = "Login";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card">
+            <div class="card-header">
+                <h3 class="text-center">Login</h3>
+            </div>
+            <div class="card-body">
+                @if (ViewData["Error"] != null)
+                {
+                    <div class="alert alert-danger" role="alert">
+                        @ViewData["Error"]
+                    </div>
+                }
+                <form method="post" action="@Url.Action("Login", "Home")">
+                    <input type="hidden" name="returnUrl" value="@ViewData["ReturnUrl"]" />
+                    <div class="form-group mb-3">
+                        <label for="email" class="form-label">Email</label>
+                        <input type="email" class="form-control" id="email" name="email" required>
+                        <div class="form-text">Try: admin@blogmvc.com, john.doe@blogmvc.com, or jane.smith@blogmvc.com</div>
+                    </div>
+                    <div class="form-group mb-3">
+                        <label for="password" class="form-label">Password</label>
+                        <input type="password" class="form-control" id="password" name="password" required>
+                        <div class="form-text">Try: Admin123!, Author123!, or Editor123!</div>
+                    </div>
+                    <div class="form-check mb-3">
+                        <input type="checkbox" class="form-check-input" id="rememberMe" name="rememberMe" value="true">
+                        <input type="hidden" name="rememberMe" value="false">
+                        <label class="form-check-label" for="rememberMe">
+                            Remember me
+                        </label>
+                    </div>
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Login</button>
+                    </div>
+                </form>
+                <hr>
+                <div class="text-center">
+                    <a href="#" class="text-decoration-none">Forgot your password?</a>
+                </div>
+                <div class="text-center mt-2">
+                    <a href="#" class="text-decoration-none">Don't have an account? Sign up</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

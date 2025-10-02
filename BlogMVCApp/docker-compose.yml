@@ -1,0 +1,35 @@
+# Auto-generated docker-compose.yml by MSBuild
+# Generated on: 2025-09-28 14:27:32
+# Configured to use existing SQL Server: distracted_franklin
+
+services:
+  # Blog MVC Application (connects to existing SQL Server)
+  blogmvc-app-container:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: blogmvc-app-container
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - "ConnectionStrings__DefaultConnection=Server=host.docker.internal,54426;Database=test1;User Id=sa;Password=amjadOmar1!A;TrustServerCertificate=true;Encrypt=false;"
+      - ASPNETCORE_URLS=http://+:8080
+    ports:
+      - "8080:8080"
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
+    restart: unless-stopped
+    volumes:
+      - app_logs:/app/logs
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/Home/Index || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+
+volumes:
+  app_logs:
+    driver: local
+
+# Note: Using existing SQL Server container 'distracted_franklin'
+# Connection: Server=host.docker.internal,54426;Database=test1;User Id=sa;Password=amjadOmar1!A;TrustServerCertificate=true;Encrypt=false;

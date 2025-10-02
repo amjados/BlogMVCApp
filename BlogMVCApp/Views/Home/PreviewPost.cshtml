@@ -1,0 +1,229 @@
+@{
+    ViewData["Title"] = "Post Preview";
+    Layout = "_Layout";
+}
+
+<div class="container">
+    <div class="row">
+        <div class="col-md-12">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <h2><i class="fas fa-eye"></i> Post Preview</h2>
+                <button type="button" class="btn btn-outline-secondary" onclick="window.close()">
+                    <i class="fas fa-times"></i> Close Preview
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <div class="col-md-8 mx-auto">
+            <div class="card">
+                <div class="card-body">
+                    <!-- Post Header -->
+                    <div class="post-header mb-4">
+                        <h1 class="post-title">@ViewBag.Title</h1>
+
+                        <div class="post-meta text-muted mb-3">
+                            <small>
+                                <i class="fas fa-user"></i> By @ViewBag.Author
+                                <span class="mx-2">•</span>
+                                <i class="fas fa-calendar"></i> @ViewBag.PublishDate.ToString("MMMM dd, yyyy")
+                                @if (!string.IsNullOrEmpty(ViewBag.Category))
+                                {
+                                    <span class="mx-2">•</span>
+                                    <i class="fas fa-folder"></i> @ViewBag.Category
+                                }
+                            </small>
+                        </div>
+
+                        @if (!string.IsNullOrEmpty(ViewBag.Excerpt))
+                        {
+                            <div class="post-excerpt alert alert-info">
+                                <strong>Excerpt:</strong> @ViewBag.Excerpt
+                            </div>
+                        }
+                    </div>
+
+                    <!-- Post Content -->
+                    <div class="post-content">
+                        @Html.Raw(ViewBag.Content.Replace("\n", "<br>"))
+                    </div>
+
+                    <!-- Post Footer -->
+                    <div class="post-footer mt-4 pt-4 border-top">
+                        <div class="row">
+                            <div class="col-md-6">
+                                <p><strong>Reading Time:</strong> @(Math.Max(1, ViewBag.Content.ToString().Split(' ').Length / 200)) min read</p>
+                            </div>
+                            <div class="col-md-6 text-end">
+                                <p><strong>Word Count:</strong> @ViewBag.Content.ToString().Split(' ').Length words</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Preview Actions -->
+            <div class="card mt-4">
+                <div class="card-body">
+                    <h5><i class="fas fa-tools"></i> Preview Actions</h5>
+                    <div class="row">
+                        <div class="col-md-4 mb-2">
+                            <button type="button" class="btn btn-outline-primary w-100" onclick="window.close()">
+                                <i class="fas fa-edit"></i> Continue Editing
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button type="button" class="btn btn-outline-success w-100" onclick="publishFromPreview()">
+                                <i class="fas fa-paper-plane"></i> Publish Now
+                            </button>
+                        </div>
+                        <div class="col-md-4 mb-2">
+                            <button type="button" class="btn btn-outline-secondary w-100" onclick="saveDraftFromPreview()">
+                                <i class="fas fa-save"></i> Save Draft
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SEO Preview -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-search"></i> SEO Preview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="seo-preview p-3" style="background-color: #f8f9fa; border-radius: 8px;">
+                        <h6 class="text-primary mb-1" style="font-size: 18px;">@ViewBag.Title</h6>
+                        <p class="text-success mb-1" style="font-size: 14px;">https://yourblog.com/posts/@ViewBag.Title.ToString().ToLowerInvariant().Replace(" ", "-")</p>
+                        <p class="text-muted mb-0" style="font-size: 14px;">
+                            @if (!string.IsNullOrEmpty(ViewBag.Excerpt))
+                            {
+                                @ViewBag.Excerpt
+                            }
+                            else
+                            {
+                                @(ViewBag.Content.ToString().Length > 160 ? ViewBag.Content.ToString().Substring(0, 160) + "..." : ViewBag.Content.ToString())
+                            }
+                        </p>
+                    </div>
+                    <small class="text-muted">This is how your post might appear in search engine results.</small>
+                </div>
+            </div>
+
+            <!-- Social Media Preview -->
+            <div class="card mt-4">
+                <div class="card-header">
+                    <h5><i class="fas fa-share-alt"></i> Social Media Preview</h5>
+                </div>
+                <div class="card-body">
+                    <div class="social-preview p-3 border" style="border-radius: 8px;">
+                        <div class="d-flex">
+                            <div class="social-image me-3">
+                                <div style="width: 80px; height: 80px; background-color: #e9ecef; border-radius: 4px; display: flex; align-items: center; justify-content: center;">
+                                    <i class="fas fa-image text-muted"></i>
+                                </div>
+                            </div>
+                            <div class="social-content flex-grow-1">
+                                <h6 class="mb-1">@ViewBag.Title</h6>
+                                <p class="text-muted mb-1" style="font-size: 14px;">
+                                    @if (!string.IsNullOrEmpty(ViewBag.Excerpt))
+                                    {
+                                        @(ViewBag.Excerpt.Length > 100 ? ViewBag.Excerpt.Substring(0, 100) + "..." : ViewBag.Excerpt)
+                                    }
+                                    else
+                                    {
+                                        @(ViewBag.Content.ToString().Length > 100 ? ViewBag.Content.ToString().Substring(0, 100) + "..." : ViewBag.Content.ToString())
+                                    }
+                                </p>
+                                <small class="text-muted">yourblog.com</small>
+                            </div>
+                        </div>
+                    </div>
+                    <small class="text-muted">This is how your post might appear when shared on social media.</small>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function publishFromPreview() {
+        if (confirm('Are you sure you want to publish this post?')) {
+            // In a real app, you'd submit the form data to publish
+            alert('This is a preview demo. In a real app, this would publish the post.');
+            window.close();
+        }
+    }
+
+    function saveDraftFromPreview() {
+        // In a real app, you'd submit the form data as draft
+        alert('This is a preview demo. In a real app, this would save the post as draft.');
+        window.close();
+    }
+</script>
+
+<style>
+    .post-title {
+        font-size: 2.5rem;
+        font-weight: bold;
+        line-height: 1.2;
+        margin-bottom: 1rem;
+    }
+
+    .post-meta {
+        border-bottom: 1px solid #dee2e6;
+        padding-bottom: 1rem;
+    }
+
+    .post-content {
+        font-size: 1.125rem;
+        line-height: 1.7;
+        color: #212529;
+    }
+
+    .post-content h1,
+    .post-content h2,
+    .post-content h3,
+    .post-content h4,
+    .post-content h5,
+    .post-content h6 {
+        margin-top: 2rem;
+        margin-bottom: 1rem;
+        font-weight: 600;
+    }
+
+    .post-content p {
+        margin-bottom: 1.5rem;
+    }
+
+    .post-content code {
+        background-color: #f8f9fa;
+        padding: 0.25rem 0.5rem;
+        border-radius: 0.375rem;
+        font-size: 0.9em;
+    }
+
+    .post-content blockquote {
+        border-left: 4px solid #007bff;
+        padding-left: 1rem;
+        margin-left: 0;
+        margin-right: 0;
+        font-style: italic;
+        color: #6c757d;
+    }
+
+    .seo-preview,
+    .social-preview {
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    }
+
+    .card {
+        border: none;
+        box-shadow: 0 0.125rem 0.25rem rgba(0, 0, 0, 0.075);
+    }
+
+    .btn {
+        border-radius: 0.375rem;
+    }
+</style>

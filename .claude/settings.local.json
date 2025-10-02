@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(dotnet --version)",
+      "Read(//c/Users/amjad/.dbclient/storage/1758882771308@@localhost@54426@test1@dbo/**)",
+      "Bash(dir)"
+    ],
+    "deny": [],
+    "ask": []
+  }
+}
