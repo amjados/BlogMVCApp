@@ -8,6 +8,43 @@
 
 A comprehensive blog application built with **ASP.NET Core 8.0** featuring advanced filter management, caching, rate limiting, and authentication.
 
+## 📸 Screenshots
+
+> **Coming Soon!** 🚧 Screenshots are being prepared to showcase the application's features.
+> 
+> To generate screenshots for this repository, follow the [Screenshots Guide](docs/SCREENSHOTS_GUIDE.md) or run:
+> ```bash
+> # Windows PowerShell
+> .\scripts\take-screenshots.ps1
+> 
+> # Linux/Mac Bash
+> ./scripts/take-screenshots.sh
+> ```
+
+<!-- 
+Uncomment and use these sections once screenshots are captured:
+
+### 🏠 Homepage
+![Homepage](docs/screenshots/home/homepage.png)
+*Clean, responsive homepage with navigation and welcome content*
+
+### 📝 Blog Management
+![Write Post](docs/screenshots/blog/write-post.png)
+*Advanced blog post creation interface with rich editing capabilities*
+
+### 👑 Admin Panel
+![User Management](docs/screenshots/admin/user-management.png)
+*Comprehensive user and role management with claims support*
+
+### 🔧 Configuration-Based Filters
+![API Response](docs/screenshots/features/api-response.png)
+*JSON API responses showing filter configuration in action*
+
+### 📱 Responsive Design
+<img src="docs/screenshots/responsive/mobile-home.png" width="300" alt="Mobile Homepage">
+*Fully responsive design that works beautifully on all devices*
+-->
+
 ## 🚀 Features
 
 ### **Core Functionality**
