@@ -1,5 +1,11 @@
 # BlogMVCApp - ASP.NET Core Blog Application
 
+[![Build and Test](https://github.com/amjados/BlogMVCApp/actions/workflows/tests.yml/badge.svg)](https://github.com/amjados/BlogMVCApp/actions/workflows/tests.yml)
+[![CI/CD Pipeline](https://github.com/amjados/BlogMVCApp/actions/workflows/ci-cd.yml/badge.svg)](https://github.com/amjados/BlogMVCApp/actions/workflows/ci-cd.yml)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![.NET](https://img.shields.io/badge/.NET-8.0-blue.svg)](https://dotnet.microsoft.com/download/dotnet/8.0)
+[![ASP.NET Core](https://img.shields.io/badge/ASP.NET%20Core-8.0-purple.svg)](https://docs.microsoft.com/aspnet/core)
+
 A comprehensive blog application built with **ASP.NET Core 8.0** featuring advanced filter management, caching, rate limiting, and authentication.
 
 ## 🚀 Features

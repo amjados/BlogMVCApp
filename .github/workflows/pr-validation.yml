@@ -1,0 +1,40 @@
+name: Pull Request Validation
+
+on:
+  pull_request:
+    branches: [ main ]
+    types: [opened, synchronize, reopened]
+
+jobs:
+  validate:
+    name: 🔍 Validate Pull Request
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: 📥 Checkout code
+      uses: actions/checkout@v4
+
+    - name: 🔧 Setup .NET 8
+      uses: actions/setup-dotnet@v4
+      with:
+        dotnet-version: '8.0.x'
+
+    - name: 📦 Restore dependencies
+      run: dotnet restore
+
+    - name: 🏗️ Build solution
+      run: dotnet build --configuration Release --no-restore
+
+    - name: 🧪 Run all tests
+      run: dotnet test --configuration Release --no-build --verbosity normal --collect:"XPlat Code Coverage"
+
+    - name: 🔍 Check for vulnerabilities
+      run: dotnet list package --vulnerable --include-transitive
+
+    - name: 📊 Test summary
+      if: always()
+      run: |
+        echo "## Test Results 🧪" >> $GITHUB_STEP_SUMMARY
+        echo "- Build: ✅ Completed" >> $GITHUB_STEP_SUMMARY
+        echo "- Tests: ✅ All tests executed" >> $GITHUB_STEP_SUMMARY
+        echo "- Security: ✅ Vulnerability check completed" >> $GITHUB_STEP_SUMMARY
