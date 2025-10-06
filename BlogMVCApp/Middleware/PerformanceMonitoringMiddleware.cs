@@ -43,9 +43,12 @@ namespace BlogMVCApp.Middleware
                 var memoryAfter = GC.GetTotalMemory(false);
                 var memoryUsed = memoryAfter - memoryBefore;
 
-                // Add performance headers
-                context.Response.Headers.TryAdd("X-Response-Time", $"{duration}ms");
-                context.Response.Headers.TryAdd("X-Memory-Used", $"{memoryUsed} bytes");
+                // Only try to add headers if response hasn't started
+                if (!context.Response.HasStarted)
+                {
+                    context.Response.Headers.TryAdd("X-Response-Time", $"{duration}ms");
+                    context.Response.Headers.TryAdd("X-Memory-Used", $"{memoryUsed} bytes");
+                }
 
                 // Log performance metrics
                 LogPerformanceMetrics(context, duration, memoryUsed);

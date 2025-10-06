@@ -99,6 +99,23 @@ namespace BlogMVCApp.Data
                             logger.LogWarning($"Failed to create user {userData.Email}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
                         }
                     }
+                    else
+                    {
+                        // For admin user, always reset password to ensure it's correct
+                        if (userData.Email == "admin@blogmvc.com")
+                        {
+                            var token = await userManager.GeneratePasswordResetTokenAsync(existingUser);
+                            var result = await userManager.ResetPasswordAsync(existingUser, token, userData.Password);
+                            if (result.Succeeded)
+                            {
+                                logger.LogInformation($"Reset password for admin user: {userData.Email}");
+                            }
+                            else
+                            {
+                                logger.LogWarning($"Failed to reset password for {userData.Email}: {string.Join(", ", result.Errors.Select(e => e.Description))}");
+                            }
+                        }
+                    }
                 }
             }
             catch (Exception ex)
